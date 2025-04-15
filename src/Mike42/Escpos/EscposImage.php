@@ -48,44 +48,44 @@ abstract class EscposImage
      *  height of the image.
      */
     protected $imgHeight = 0;
-    
+
     /**
      * @var int $imgWidth
      *  width of the image
      */
     protected $imgWidth = 0;
-    
+
     /**
      * @var string $imgData
      *  Image data in rows: 1 for black, 0 for white.
      */
     private $imgData = null;
-    
+
     /**
      * @var array:string $imgColumnData
      *  Cached column-format data to avoid re-computation
      */
     private $imgColumnData = [];
-    
+
     /**
      * @var string $imgRasterData
      *  Cached raster format data to avoid re-computation
      */
     private $imgRasterData = null;
-    
+
     /**
      * @var string $filename
      *  Filename of image on disk - null if not loaded from disk.
      */
     private $filename = null;
-    
+
     /**
      * @var boolean $allowOptimisations
      *  True to allow faster library-specific rendering shortcuts, false to always just use
      *  image libraries to read pixels (more reproducible between systems).
      */
     private $allowOptimisations = true;
-    
+
     /**
      * Construct a new EscposImage.
      *
@@ -96,8 +96,8 @@ abstract class EscposImage
      */
     public function __construct($filename = null, $allowOptimisations = true)
     {
-        $this -> filename = $filename;
-        $this -> allowOptimisations = $allowOptimisations;
+        $this->filename = $filename;
+        $this->allowOptimisations = $allowOptimisations;
     }
 
     /**
@@ -105,31 +105,31 @@ abstract class EscposImage
      */
     public function getHeight()
     {
-        return $this -> imgHeight;
+        return $this->imgHeight;
     }
-    
+
     /**
      * @return int Number of bytes to represent a row of this image
      */
     public function getHeightBytes()
     {
-        return (int)(($this -> imgHeight + 7) / 8);
+        return (int)(($this->imgHeight + 7) / 8);
     }
-    
+
     /**
      * @return int Width of the image
      */
     public function getWidth()
     {
-        return $this -> imgWidth;
+        return $this->imgWidth;
     }
-    
+
     /**
      * @return int Number of bytes to represent a row of this image
      */
     public function getWidthBytes()
     {
-        return (int)(($this -> imgWidth + 7) / 8);
+        return (int)(($this->imgWidth + 7) / 8);
     }
 
     /**
@@ -143,25 +143,25 @@ abstract class EscposImage
     public function toRasterFormat()
     {
         // Just wraps implementations for caching & lazy loading
-        if ($this -> imgRasterData !== null) {
+        if ($this->imgRasterData !== null) {
             /* Return cached value */
-            return $this -> imgRasterData;
+            return $this->imgRasterData;
         }
-        if ($this -> allowOptimisations) {
+        if ($this->allowOptimisations) {
             /* Use optimised code if allowed */
-            $this -> imgRasterData = $this -> getRasterFormatFromFile($this -> filename);
+            $this->imgRasterData = $this->getRasterFormatFromFile($this->filename);
         }
-        if ($this -> imgRasterData === null) {
+        if ($this->imgRasterData === null) {
             /* Load in full image and render the slow way if no faster implementation
              is available, or if we've been asked not to use it */
-            if ($this -> imgData === null) {
-                $this -> loadImageData($this -> filename);
+            if ($this->imgData === null) {
+                $this->loadImageData($this->filename);
             }
-            $this -> imgRasterData = $this -> getRasterFormat();
+            $this->imgRasterData = $this->getRasterFormat();
         }
-        return $this -> imgRasterData;
+        return $this->imgRasterData;
     }
-    
+
     /**
      * Output the image in column format.
      *
@@ -172,25 +172,25 @@ abstract class EscposImage
     {
         $densityIdx = $doubleDensity ? 1 : 0;
         // Just wraps implementations for caching and lazy loading
-        if (isset($this -> imgColumnData[$densityIdx])) {
+        if (isset($this->imgColumnData[$densityIdx])) {
             /* Return cached value */
-            return $this -> imgColumnData[$densityIdx];
+            return $this->imgColumnData[$densityIdx];
         }
-        $this -> imgColumnData[$densityIdx] = null;
-        if ($this -> allowOptimisations) {
+        $this->imgColumnData[$densityIdx] = null;
+        if ($this->allowOptimisations) {
             /* Use optimised code if allowed */
-            $data = $this -> getColumnFormatFromFile($this -> filename, $doubleDensity);
-            $this -> imgColumnData[$densityIdx] = $data;
+            $data = $this->getColumnFormatFromFile($this->filename, $doubleDensity);
+            $this->imgColumnData[$densityIdx] = $data;
         }
-        if ($this -> imgColumnData[$densityIdx] === null) {
+        if ($this->imgColumnData[$densityIdx] === null) {
             /* Load in full image and render the slow way if no faster implementation
              is available, or if we've been asked not to use it */
-            if ($this -> imgData === null) {
-                $this -> loadImageData($this -> filename);
+            if ($this->imgData === null) {
+                $this->loadImageData($this->filename);
             }
-            $this -> imgColumnData[$densityIdx] = $this -> getColumnFormat($doubleDensity);
+            $this->imgColumnData[$densityIdx] = $this->getColumnFormat($doubleDensity);
         }
-        return $this -> imgColumnData[$densityIdx];
+        return $this->imgColumnData[$densityIdx];
     }
 
     /**
@@ -201,11 +201,11 @@ abstract class EscposImage
     protected function loadImageData(string $filename = null)
     {
         // Load image in to string of 1's and 0's, also set width & height
-        $this -> setImgWidth(0);
-        $this -> setImgHeight(0);
-        $this -> setImgData("");
+        $this->setImgWidth(0);
+        $this->setImgHeight(0);
+        $this->setImgData("");
     }
-    
+
     /**
      * Set image data.
      *
@@ -213,9 +213,9 @@ abstract class EscposImage
      */
     protected function setImgData($data)
     {
-        $this -> imgData = $data;
+        $this->imgData = $data;
     }
-    
+
     /**
      * Set image width.
      *
@@ -223,9 +223,9 @@ abstract class EscposImage
      */
     protected function setImgWidth($width)
     {
-        $this -> imgWidth = $width;
+        $this->imgWidth = $width;
     }
-    
+
     /**
      * Set image height.
      *
@@ -233,9 +233,9 @@ abstract class EscposImage
      */
     protected function setImgHeight($height)
     {
-        $this -> imgHeight = $height;
+        $this->imgHeight = $height;
     }
-    
+
     /**
      * @param string $filename
      *  Filename to load from
@@ -248,7 +248,7 @@ abstract class EscposImage
         // No optimised implementation to provide
         return null;
     }
-    
+
     /**
      * @param string $filename
      *  Filename to load from
@@ -263,7 +263,7 @@ abstract class EscposImage
         // No optimised implementation to provide
         return null;
     }
-    
+
     /**
      * Get column fromat from loaded image pixels, line by line.
      *
@@ -275,17 +275,17 @@ abstract class EscposImage
     private function getRasterFormat()
     {
         /* Loop through and convert format */
-        $widthPixels = $this -> getWidth();
-        $heightPixels = $this -> getHeight();
-        $widthBytes = $this -> getWidthBytes();
-        $heightBytes = $this -> getHeightBytes();
+        $widthPixels = $this->getWidth();
+        $heightPixels = $this->getHeight();
+        $widthBytes = $this->getWidthBytes();
+        $heightBytes = $this->getHeightBytes();
         $x = $y = $bit = $byte = $byteVal = 0;
         $data = str_repeat("\0", $widthBytes * $heightPixels);
         if (strlen($data) == 0) {
             return $data;
         }
         do {
-            $byteVal |= (int)$this -> imgData[$y * $widthPixels + $x] << (7 - $bit);
+            $byteVal |= (int)$this->imgData[$y * $widthPixels + $x] << (7 - $bit);
             $x++;
             $bit++;
             if ($x >= $widthPixels) {
@@ -304,12 +304,12 @@ abstract class EscposImage
                 $byte++;
             }
         } while (true);
-        if (strlen($data) != ($this -> getWidthBytes() * $this -> getHeight())) {
+        if (strlen($data) != ($this->getWidthBytes() * $this->getHeight())) {
             throw new Exception("Bug in " . __FUNCTION__ . ", wrong number of bytes.");
         }
         return $data;
     }
-    
+
     /**
      * Get column fromat from loaded image pixels, line by line.
      *
@@ -322,13 +322,13 @@ abstract class EscposImage
     {
         $out = [];
         $i = 0;
-        while (($line = $this -> getColumnFormatLine($i, $highDensity)) !== null) {
+        while (($line = $this->getColumnFormatLine($i, $highDensity)) !== null) {
             $out[] = $line;
             $i++;
         }
         return $out;
     }
-    
+
     /**
      * Output image in column format. Must be called once for each line of output.
      *
@@ -344,10 +344,10 @@ abstract class EscposImage
     private function getColumnFormatLine(int $lineNo, bool $highDensity)
     {
         // Currently double density in both directions, very experimental
-        $widthPixels = $this -> getWidth();
-        $heightPixels = $this -> getHeight();
-        $widthBytes = $this -> getWidthBytes();
-        $heightBytes = $this -> getHeightBytes();
+        $widthPixels = $this->getWidth();
+        $heightPixels = $this->getHeight();
+        $widthBytes = $this->getWidthBytes();
+        $heightBytes = $this->getHeightBytes();
         $lineHeight = $highDensity ? 3 : 1; // Vertical density. 1 or 3 (for 8 and 24 pixel lines)
         // Initialise to zero
         $x = $y = $bit = $byte = $byteVal = 0;
@@ -362,7 +362,7 @@ abstract class EscposImage
         do {
             $yReal = $y + $yStart;
             if ($yReal < $heightPixels) {
-                $byteVal |= (int)$this -> imgData[$yReal * $widthPixels + $x] << (7 - $bit);
+                $byteVal |= (int)$this->imgData[$yReal * $widthPixels + $x] << (7 - $bit);
             }
             $y++;
             $bit++;
@@ -387,7 +387,7 @@ abstract class EscposImage
         }
         return $data;
     }
-    
+
     /**
      * @return boolean True if GD is loaded, false otherwise
      */
@@ -395,7 +395,7 @@ abstract class EscposImage
     {
         return extension_loaded('gd');
     }
-    
+
     /**
      * @return boolean True if Imagick is loaded, false otherwise
      */
@@ -403,7 +403,7 @@ abstract class EscposImage
     {
         return extension_loaded('imagick');
     }
-    
+
 
     /**
      * This is a convinience method to load an image from file, auto-selecting
@@ -431,10 +431,6 @@ abstract class EscposImage
         bool $allowOptimisations = true,
         array $preferred = ['imagick', 'gd', 'native']
     ) {
-        /* Fail early if file is not readble */
-        if (!file_exists($filename) || !is_readable($filename)) {
-            throw new Exception("File '$filename' does not exist, or is not readable.");
-        }
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         /* Choose the first implementation which can handle this format */
         foreach ($preferred as $implementation) {

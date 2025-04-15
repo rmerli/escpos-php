@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * This file is part of escpos-php: PHP receipt printer library for use with
  * ESC/POS-compatible thermal and impact printers.
@@ -30,26 +32,26 @@ class ImagickEscposImage extends EscposImage
         /* Strip transparency */
         $im = self::alphaRemove($im);
         /* Threshold */
-        $im -> setImageType(Imagick::IMGTYPE_TRUECOLOR); // Remove transparency (good for PDF's)
+        $im->setImageType(Imagick::IMGTYPE_TRUECOLOR); // Remove transparency (good for PDF's)
         $max = $im->getQuantumRange();
         $max = $max["quantumRangeLong"];
-        $im -> thresholdImage(0.5 * $max);
+        $im->thresholdImage(0.5 * $max);
         /* Make a string of 1's and 0's */
-        $imgHeight = $im -> getimageheight();
-        $imgWidth = $im -> getimagewidth();
+        $imgHeight = $im->getimageheight();
+        $imgWidth = $im->getimagewidth();
         $imgData = str_repeat("\0", $imgHeight * $imgWidth);
         for ($y = 0; $y < $imgHeight; $y++) {
             for ($x = 0; $x < $imgWidth; $x++) {
                 /* Faster to average channels, blend alpha and negate the image here than via filters (tested!) */
-                $cols = $im -> getImagePixelColor($x, $y);
-                $cols = $cols -> getcolor();
+                $cols = $im->getImagePixelColor($x, $y);
+                $cols = $cols->getcolor();
                 $greyness = (int)(($cols['r'] + $cols['g'] + $cols['b']) / 3) >> 7;  // 1 for white, 0 for black
                 $imgData[$y * $imgWidth + $x] = (1 - $greyness); // 1 for black, 0 for white
             }
         }
-        $this -> setImgWidth($imgWidth);
-        $this -> setImgHeight($imgHeight);
-        $this -> setImgData($imgData);
+        $this->setImgWidth($imgWidth);
+        $this->setImgHeight($imgHeight);
+        $this->setImgData($imgData);
     }
 
     /**
@@ -66,18 +68,18 @@ class ImagickEscposImage extends EscposImage
         if ($filename === null) {
             return null;
         }
-        $im = $this -> getImageFromFile($filename);
-        $this -> setImgWidth($im -> getimagewidth());
-        $this -> setImgHeight($im -> getimageheight());
-        
+        $im = $this->getImageFromFile($filename);
+        $this->setImgWidth($im->getimagewidth());
+        $this->setImgHeight($im->getimageheight());
+
         /* Strip transparency */
         $im = self::alphaRemove($im);
-        $im -> setformat('pbm');
-        $im -> getimageblob(); // Forces 1-bit rendering now, so that subsequent operations are faster
-        $im -> rotateImage('#fff', 90.0);
-        $im -> flopImage();
+        $im->setformat('pbm');
+        $im->getimageblob(); // Forces 1-bit rendering now, so that subsequent operations are faster
+        $im->rotateImage('#fff', 90.0);
+        $im->flopImage();
         $lineHeight = $highDensityVertical ? 3 : 1;
-        $blobs = $this -> getColumnFormatFromImage($im, $lineHeight * 8);
+        $blobs = $this->getColumnFormatFromImage($im, $lineHeight * 8);
         return $blobs;
     }
 
@@ -94,9 +96,9 @@ class ImagickEscposImage extends EscposImage
             /* Set to blank image */
             return parent::loadImageData($filename);
         }
-    
-        $im = $this -> getImageFromFile($filename);
-        $this -> readImageFromImagick($im);
+
+        $im = $this->getImageFromFile($filename);
+        $this->readImageFromImagick($im);
     }
 
     /**
@@ -113,7 +115,7 @@ class ImagickEscposImage extends EscposImage
         $imgWidth = $im->getimagewidth();
         if ($imgWidth == $lineHeight) {
             // Return glob of this panel
-            return [$this -> getRasterBlobFromImage($im)];
+            return [$this->getRasterBlobFromImage($im)];
         } elseif ($imgWidth > $lineHeight) {
             // Calculations
             $slicesLeft = (int)ceil($imgWidth / $lineHeight / 2); // TODO avoid use of floats with intdiv()
@@ -121,19 +123,19 @@ class ImagickEscposImage extends EscposImage
             $widthRight = $imgWidth - $widthLeft;
             // Slice up (left)
             $left = clone $im;
-            $left -> extentimage($widthLeft, $left -> getimageheight(), 0, 0);
+            $left->extentimage($widthLeft, $left->getimageheight(), 0, 0);
             // Slice up (right - ensure width is divisible by lineHeight also)
             $right = clone $im;
             $widthRightRounded = $widthRight < $lineHeight ? $lineHeight : $widthRight;
-            $right -> extentimage($widthRightRounded, $right -> getimageheight(), $widthLeft, 0);
+            $right->extentimage($widthRightRounded, $right->getimageheight(), $widthLeft, 0);
             // Recurse
-            $leftBlobs = $this -> getColumnFormatFromImage($left, $lineHeight);
-            $rightBlobs = $this -> getColumnFormatFromImage($right, $lineHeight);
+            $leftBlobs = $this->getColumnFormatFromImage($left, $lineHeight);
+            $rightBlobs = $this->getColumnFormatFromImage($right, $lineHeight);
             return array_merge($leftBlobs, $rightBlobs);
         } else {
             /* Image is smaller than full width */
-            $im -> extentimage($lineHeight, $im -> getimageheight(), 0, 0);
-            return [$this -> getRasterBlobFromImage($im)];
+            $im->extentimage($lineHeight, $im->getimageheight(), 0, 0);
+            return [$this->getRasterBlobFromImage($im)];
         }
     }
 
@@ -148,11 +150,11 @@ class ImagickEscposImage extends EscposImage
     {
         $im = new Imagick();
         try {
-            $im -> setResourceLimit(6, 1); // Prevent libgomp1 segfaults, grumble grumble.
-            $im -> readimage($filename);
+            $im->setResourceLimit(6, 1); // Prevent libgomp1 segfaults, grumble grumble.
+            $im->readimage($filename);
         } catch (\ImagickException $e) {
             /* Re-throw as normal exception */
-            throw new Exception($e -> getMessage());
+            throw new Exception($e->getMessage());
         }
         return $im;
     }
@@ -166,7 +168,7 @@ class ImagickEscposImage extends EscposImage
      */
     private function getRasterBlobFromImage(Imagick $im)
     {
-        $blob = $im -> getimageblob();
+        $blob = $im->getimageblob();
         /* Find where header ends */
         $i = strpos($blob, "P4\n") + 2;
         while ($blob[$i + 1] == '#') {
@@ -190,13 +192,13 @@ class ImagickEscposImage extends EscposImage
         if ($filename === null) {
             return null;
         }
-        $im = $this -> getImageFromFile($filename);
-        $this -> setImgWidth($im -> getimagewidth());
-        $this -> setImgHeight($im -> getimageheight());
+        $im = $this->getImageFromFile($filename);
+        $this->setImgWidth($im->getimagewidth());
+        $this->setImgHeight($im->getimageheight());
         /* Convert to PBM and extract raster portion */
         $im = self::alphaRemove($im);
-        $im -> setFormat('pbm');
-        return $this -> getRasterBlobFromImage($im);
+        $im->setFormat('pbm');
+        return $this->getRasterBlobFromImage($im);
     }
 
     /**
@@ -223,30 +225,30 @@ class ImagickEscposImage extends EscposImage
         try {
             $image = new Imagick();
             $testRes = 2; // Test resolution
-            $image -> setresolution($testRes, $testRes);
+            $image->setresolution($testRes, $testRes);
             /* Load document just to measure geometry */
-            $image -> readimage($pdfFile);
-            $geo = $image -> getimagegeometry();
-            $image -> destroy();
+            $image->readimage($pdfFile);
+            $geo = $image->getimagegeometry();
+            $image->destroy();
             $width = $geo['width'];
             $newRes = $pageWidth / $width * $testRes;
             /* Load entire document in */
-            $image -> setresolution($newRes, $newRes);
-            $image -> readImage($pdfFile);
-            $pages = $image -> getNumberImages();
+            $image->setresolution($newRes, $newRes);
+            $image->readImage($pdfFile);
+            $pages = $image->getNumberImages();
             /* Convert images to Escpos objects */
             $ret = [];
             for ($i = 0; $i < $pages; $i++) {
-                $image -> setIteratorIndex($i);
+                $image->setIteratorIndex($i);
                 $ep = new ImagickEscposImage();
-                $ep -> readImageFromImagick($image);
+                $ep->readImageFromImagick($image);
                 $ret[] = $ep;
             }
             return $ret;
         } catch (\ImagickException $e) {
             /* Wrap in normal exception, so that classes which call this do not
              * themselves require imagick as a dependency. */
-            throw new Exception($e -> getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -265,8 +267,8 @@ class ImagickEscposImage extends EscposImage
     private static function alphaRemove(Imagick $im)
     {
         $flat = new Imagick();
-        $flat -> newImage($im -> getimagewidth(), $im -> getimageheight(), "white", $im -> getimageformat());
-        $flat -> compositeimage($im, Imagick::COMPOSITE_OVER, 0, 0);
+        $flat->newImage($im->getimagewidth(), $im->getimageheight(), "white", $im->getimageformat());
+        $flat->compositeimage($im, Imagick::COMPOSITE_OVER, 0, 0);
         return $flat;
     }
 }

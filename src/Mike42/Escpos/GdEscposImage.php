@@ -35,7 +35,7 @@ class GdEscposImage extends EscposImage
             /* Set to blank image */
             return parent::loadImageData($filename);
         }
-        
+
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         switch ($ext) {
             case "png":
@@ -50,7 +50,7 @@ class GdEscposImage extends EscposImage
             default:
                 throw new Exception("Image format not supported in GD");
         }
-        $this -> readImageFromGdResource($im);
+        $this->readImageFromGdResource($im);
     }
 
     /**
@@ -61,9 +61,7 @@ class GdEscposImage extends EscposImage
      */
     public function readImageFromGdResource($im)
     {
-        if (!is_resource($im) && !$im instanceof \GdImage) {
-            throw new Exception("Failed to load image.");
-        } elseif (!EscposImage::isGdLoaded()) {
+        if (!EscposImage::isGdLoaded()) {
             throw new Exception(__FUNCTION__ . " requires 'gd' extension.");
         }
         /* Make a string of 1's and 0's */
@@ -81,8 +79,8 @@ class GdEscposImage extends EscposImage
                 $imgData[$y * $imgWidth + $x] = $black;
             }
         }
-        $this -> setImgWidth($imgWidth);
-        $this -> setImgHeight($imgHeight);
-        $this -> setImgData($imgData);
+        $this->setImgWidth($imgWidth);
+        $this->setImgHeight($imgHeight);
+        $this->setImgData($imgData);
     }
 }
