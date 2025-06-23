@@ -36,8 +36,11 @@ class GdEscposImage extends EscposImage
             return parent::loadImageData($filename);
         }
 
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        switch ($ext) {
+        if (!$this->ext) {
+            $this->ext = pathinfo($filename, PATHINFO_EXTENSION);
+        }
+
+        switch ($this->ext) {
             case "png":
                 $im = @imagecreatefrompng($filename);
                 break;

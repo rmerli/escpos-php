@@ -86,6 +86,8 @@ abstract class EscposImage
      */
     private $allowOptimisations = true;
 
+    protected $ext = null;
+
     /**
      * Construct a new EscposImage.
      *
@@ -98,6 +100,11 @@ abstract class EscposImage
     {
         $this->filename = $filename;
         $this->allowOptimisations = $allowOptimisations;
+    }
+
+    public function setExt(string $ext)
+    {
+        $this->ext = $ext;
     }
 
     /**
